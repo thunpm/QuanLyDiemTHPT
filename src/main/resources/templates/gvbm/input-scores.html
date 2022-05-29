@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<title>Nhập điểm | Giáo viên bộ môn</title>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	<!-- Main CSS-->
+	<link rel="stylesheet" type="text/css" th:href="@{/home/css/main.css}">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
+	<!-- or -->
+	<link rel="stylesheet" href="https://unpkg.com/boxicons@latest/css/boxicons.min.css">
+	
+	<!-- Font-icon css-->
+	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.css">
+</head>
+
+<body onload="time()" class="app sidebar-mini rtl">
+	<!-- Navbar-->
+  	<header class="app-header">
+    	<!-- Navbar Right Menu-->
+    	<ul class="app-nav">
+			<!-- User Menu-->
+    		<li>
+    			<a class="app-nav__item" th:href="@{/logout}">
+    				<i class='bx bx-log-out bx-rotate-180'></i> 
+    			</a>
+    		</li>
+    	</ul>
+  	</header>
+  	<!-- Sidebar menu-->
+  	<div class="app-sidebar__overlay" data-toggle="sidebar"></div>
+  	<aside class="app-sidebar">
+    	<div class="app-sidebar__user">
+    		<img class="app-sidebar__user-avatar" th:src="@{/images/hay.jpg}" width="50px" alt="User Image">
+      		<div>
+        		<p class="app-sidebar__user-name" th:object="${#session.getAttribute('userLogin')}">
+        			<b th:text="*{ho}"></b>
+        			<b th:text="*{ten}"></b>
+        		</p>
+        		<p class="app-sidebar__user-designation">Chào mừng bạn trở lại</p>
+      		</div>
+    	</div>
+    	<hr>
+	    <ul class="app-menu">
+	      	<li>
+		      	<a class="app-menu__item" th:href="@{/gvbm/home}">
+		      		<i class='app-menu__icon bx bxs-home'></i>
+		      		<span class="app-menu__label">Trang chủ</span>
+		      	</a>
+	     	</li>
+	      	<li>
+		      	<a class="app-menu__item active" th:href="@{/gvbm/danhsachday}">
+		      		<i class='app-menu__icon bx bx-list-ul'></i> 
+		      		<span class="app-menu__label">Danh sách môn dạy</span>
+		    	</a>
+		  	</li>
+	      	<li>
+		      	<a class="app-menu__item" th:href="@{/gvbm/thongtincanhan}">
+		      		<i class='app-menu__icon bx bx-detail'></i>
+		      		<span class="app-menu__label">Thông tin cá nhân</span>
+		      	</a>
+	      	</li>
+	      	<li>
+		      	<a class="app-menu__item" th:href="@{/logout}">
+		      		<i class='app-menu__icon bx bx-log-out'></i>
+		      		<span class="app-menu__label">Đăng xuất</span>
+		      	</a>
+	    	</li>
+	    </ul>
+  	</aside>
+  	<!-- Main contain -->
+    <main class="app-content">
+        <div class="app-title">
+            <ul class="app-breadcrumb breadcrumb side">
+                <li class="breadcrumb-item active">
+                	<a th:href="@{/gvbm/danhsachday}"><b>Danh sách phân công</b></a>
+                	 / 
+                	<a href="#"><b>Môn <span th:text="${tenMH}"></span> / <span th:text="${tenLH}"></span></b></a>
+                </li>
+            </ul>
+            <div id="clock"></div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="tile">
+                    <div class="tile-body">
+                        <table class="table table-hover table-bordered" id="sampleTable">
+                            <thead>
+                                <tr>
+                                    <th width="10"><input type="checkbox" id="all"></th>
+                                    <th>Mã học sinh</th>
+                                    <th>Họ và tên</th>
+                                    <th>Điểm miệng</th>
+                                    <th>Điểm thi giữa kỳ</th>
+                                    <th>Điểm thi cuối kỳ</th>
+                                    <th>Sửa</th>
+                                </tr>
+                            </thead>
+                            <tbody th:if="${list != null && !list.empty}">
+                            	<div th:each="hocSinh: ${list}">
+	                                <tr th:object="${hocSinh}">
+	                                    <td width="10"><input type="checkbox" name="check1" value="1"></td>
+	                                    <td th:text=*{maHS}></td>
+	                                    <td>
+	                                    	<span th:text=*{ho}> </span>	
+	                                    	<span th:text=*{ten}></span>	
+	                                    </td>
+	                                    <td th:text=*{diemMH.diemHe1}></td>
+	                                    <td th:text=*{diemMH.diemHe2}></td>
+	                                    <td th:text=*{diemMH.diemHe3}></td>
+	                                    <td>
+	                                    	<button class="btn btn-primary btn-sm edit" type="button" title="Sửa" id="show-emp" data-toggle="modal" th:attr="data-target='#' + ${hocSinh.maHS}">
+						                      	<i class="fas fa-edit"></i>
+						                    </button>
+						                    <!-- MODAL -->
+										  	<div class="modal fade" th:attr="id=${hocSinh.maHS}" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+										    	<div class="modal-dialog modal-dialog-centered" role="document">
+										      		<div class="modal-content">
+										      			<form th:action="@{/gvbm/suadiemhocsinh}" method="POST">
+										      				<input type="hidden" th:name="mapc" th:value="${maPC}">
+										      				<input type="hidden" th:name="malh" th:value="${maLH}">
+										      				<input type="hidden" th:name="mamh" th:value="${maMH}">
+										      				<input type="hidden" th:name="mahs" th:value="*{maHS}">
+											      			<div class="modal-body">
+											          			<div class="row">
+											            			<div class="form-group  col-md-12">
+											              				<span class="thong-tin-thanh-toan">
+											                				<h5 style="text-align: center; color: #be2a2a;">Chỉnh sửa điểm học sinh</h5>
+											              				</span>
+											            			</div>
+											          			</div>
+											          			<div class="row">
+											            			<div class="form-group col-md-12">
+											              				<label class="control-label">Họ tên học sinh</label>
+											              				<input class="form-control" type="text" th:value="${hocSinh.ho + ' ' + hocSinh.ten}" disabled>
+											            			</div>
+											            			<div class="form-group col-md-6">
+											              				<label class="control-label">Điểm miệng</label>
+											              				<input class="form-control" type="text" required th:name="diemhe1" th:value="*{diemMH.diemHe1}">
+											            			</div>
+											            			<div class="form-group  col-md-6">
+											              				<label class="control-label">Điểm giữa kỳ</label>
+											              				<input class="form-control" type="text" required th:name="diemhe2" th:value="*{diemMH.diemHe2}">
+											            			</div>
+											            			<div class="form-group col-md-6">
+											              				<label class="control-label">Điểm cuối kỳ</label>
+											              				<input class="form-control" type="text" required th:name="diemhe3" th:value="*{diemMH.diemHe3}">
+											           				</div>
+											          			</div>
+											          			<br>
+											          			<br>
+											          			<input class="btn btn-save" type="submit" value="Lưu lại">
+											         	 		<a class="btn btn-cancel" data-dismiss="modal" href="#">Hủy bỏ</a>
+											          			<br>
+											        		</div>
+										      			</form>
+										        		<div class="modal-footer"></div>
+										      		</div>
+										    	</div>
+										  	</div>
+										  	<!-- MODAL -->
+	                                    </td>
+	                                </tr>
+                                </div>
+                            </tbody>
+                        </table>
+                   	</div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Essential javascripts for application to work-->
+    <script th:src="@{/home/js/jquery-3.2.1.min.js}"></script>
+    <script th:src="@{/home/js/popper.min.js}"></script>
+    <script th:src="@{/home/js/bootstrap.min.js}"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script th:src="@{/home/js/jquery.table2excel.js}"></script>
+    <script th:src="@{/home/js/main.js}"></script>
+    <!-- The javascript plugin to display page loading on top-->
+    <script th:src="@{/home/js/plugins/pace.min.js}"></script>
+    <!-- Page specific javascripts-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.js"></script>
+    <!-- Data table plugin-->
+    <script type="text/javascript" th:src="@{/home/js/plugins/jquery.dataTables.min.js}"></script>
+    <script type="text/javascript" th:src="@{/home/js/plugins/dataTables.bootstrap.min.js}"></script>
+    
+    <script type="text/javascript">
+        $('#sampleTable').DataTable();
+        //Thời Gian
+	    function time() {
+	      var today = new Date();
+	      var weekday = new Array(7);
+	      weekday[0] = "Chủ Nhật";
+	      weekday[1] = "Thứ Hai";
+	      weekday[2] = "Thứ Ba";
+	      weekday[3] = "Thứ Tư";
+	      weekday[4] = "Thứ Năm";
+	      weekday[5] = "Thứ Sáu";
+	      weekday[6] = "Thứ Bảy";
+	      var day = weekday[today.getDay()];
+	      var dd = today.getDate();
+	      var mm = today.getMonth() + 1;
+	      var yyyy = today.getFullYear();
+	      var h = today.getHours();
+	      var m = today.getMinutes();
+	      var s = today.getSeconds();
+	      m = checkTime(m);
+	      s = checkTime(s);
+	      nowTime = h + " giờ " + m + " phút " + s + " giây";
+	      if (dd < 10) {
+	        dd = '0' + dd
+	      }
+	      if (mm < 10) {
+	        mm = '0' + mm
+	      }
+	      today = day + ', ' + dd + '/' + mm + '/' + yyyy;
+	      tmp = '<span class="date"> ' + today + ' - ' + nowTime +
+	        '</span>';
+	      document.getElementById("clock").innerHTML = tmp;
+	      clocktime = setTimeout("time()", "1000", "Javascript");
+	
+	      function checkTime(i) {
+	        if (i < 10) {
+	          i = "0" + i;
+	        }
+	        return i;
+	      }
+	    }
+    </script>
+    
+</body>
+
+</html>

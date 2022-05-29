@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<title>Quản lý học sinh | Quản trị viên</title>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Main CSS-->
+<link rel="stylesheet" type="text/css" th:href="@{/home/css/main.css}">
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
+<!-- or -->
+<link rel="stylesheet"
+	href="https://unpkg.com/boxicons@latest/css/boxicons.min.css">
+
+<!-- Font-icon css-->
+<link rel="stylesheet" type="text/css"
+	href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+<link rel="stylesheet"
+	href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.css">
+</head>
+
+<body onload="time()" class="app sidebar-mini rtl">
+	<!-- Navbar-->
+	<header class="app-header">
+		<!-- Navbar Right Menu-->
+		<ul class="app-nav">
+			<!-- User Menu-->
+			<li><a class="app-nav__item" th:href="@{#}"> <i
+					class='bx bx-log-out bx-rotate-180'></i>
+			</a></li>
+		</ul>
+	</header>
+	<!-- Sidebar menu-->
+	<div class="app-sidebar__overlay" data-toggle="sidebar"></div>
+	<aside class="app-sidebar">
+		<div class="app-sidebar__user">
+			<img class="app-sidebar__user-avatar" th:src="@{/images/hay.jpg}"
+				width="50px" alt="User Image">
+			<div>
+				<p class="app-sidebar__user-name"
+					th:object="${#session.getAttribute('userLogin')}">
+					<b th:text="*{ho}"></b> <b th:text="*{ten}"></b>
+				</p>
+				<p class="app-sidebar__user-designation">Chào mừng bạn trở lại</p>
+			</div>
+		</div>
+		<hr>
+		<ul class="app-menu">
+			<li><a class="app-menu__item" th:href="@{/Admin}"> <i
+					class='app-menu__icon bx bxs-home'></i> <span
+					class="app-menu__label">Trang chủ Admin</span>
+			</a></li>
+			<li><a class="app-menu__item " th:href="@{/danhsachgiaovien}">
+					<i class='app-menu__icon bx bx-list-ul'></i> <span
+					class="app-menu__label">Danh sách giáo viên</span>
+			</a></li>
+			<li><a class="app-menu__item" th:href="@{/danhsachlop}"> <i
+					class='app-menu__icon fas fa-graduation-cap'></i> <span
+					class="app-menu__label">Danh sách lớp</span>
+			</a></li>
+			<li><a class="app-menu__item" th:href="@{/phancong}"> <i
+					class='app-menu__icon bx bx-pencil'></i> <span
+					class="app-menu__label">Phân công giảng dạy</span>
+			</a></li>
+			<li><a class="app-menu__item active" th:href="@{/danhsachhocsinh}">
+					<i class='app-menu__icon bx bx-detail'></i> <span
+					class="app-menu__label">Danh sách học sinh</span>
+			</a></li>
+			<li><a class="app-menu__item" th:href="@{/logout}"> <i
+					class='app-menu__icon bx bx-log-out'></i> <span
+					class="app-menu__label">Đăng xuất</span>
+			</a></li>
+		</ul>
+	</aside>
+	<!-- Main contain -->
+	<main class="app-content">
+		<div class="app-title">
+			<ul class="app-breadcrumb breadcrumb side">
+				<li class="breadcrumb-item active"><a href="#"><b>Danh
+							sách học sinh
+					</b></a></li>
+			</ul>
+			<div id="clock"></div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<div class="tile">
+					<div class="tile-body">
+						<div class="row element-button">
+							<div class="col-sm-2">
+								<a type="button" class="btn btn-info btn-sm"
+									data-toggle="modal" data-target="#ModalLoginForm">
+									<i class="fas fa-plus"></i>
+									Thêm mới</a>
+							</div>
+							<div class="col-sm-2">
+								<a class="btn btn-delete btn-sm print-file" type="button"
+									title="In" onclick="myApp.printTable()"> <i
+									class="fas fa-print"></i> In dữ liệu
+								</a>
+							</div>
+							<div class="col-sm-2">
+								<a class="btn btn-delete btn-sm print-file js-textareacopybtn"
+									type="button" title="Sao chép"> <i class="fas fa-copy"></i>
+									Sao chép
+								</a>
+							</div>
+							<div class="col-sm-2">
+								<a class="btn btn-excel btn-sm" href="" title="In"> <i
+									class="fas fa-file-excel"></i> Xuất Excel
+								</a>
+							</div>
+							<div class="col-sm-2">
+								<a class="btn btn-delete btn-sm pdf-file" type="button"
+									title="In" onclick="myFunction(this)"> <i
+									class="fas fa-file-pdf"></i> Xuất PDF
+								</a>
+							</div>
+						</div>
+						<table class="table table-hover table-bordered" id="sampleTable">
+							<thead>
+								<tr>
+									<th width="10"><input type="checkbox" id="all"></th>
+									<th>Mã học sinh</th>
+									<th>Mã lớp học</th>
+									<th>Họ và tên</th>
+									<th>Giới tính</th>
+									<th>Ngày sinh</th>
+									<th>Địa chỉ</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody th:if="${dsHS != null && !dsHS.empty}">
+								<div th:each="hocSinh: ${dsHS}">
+									<tr th:object="${hocSinh}">
+										<td width="10"><input type="checkbox" name="check1"
+											value="1"></td>
+										<td th:text=*{maHS}></td>
+										<td th:text=*{maLH}></td>
+										<td><b th:text=*{ho}></b> <b th:text=*{ten}></b></td>
+										<td th:text=*{gioiTinh}></td>
+										<td th:text=*{ngaySinh}></td>
+										<td th:text=*{diaChi}></td>
+										<td><button type="button"
+												class="btn btn-secondary btn-sm edit" data-toggle="modal"
+												data-target="#ModalEditForm">Chỉnh sửa</button></td>
+									</tr>
+								</div>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal HTML Markup -->
+		<div id="ModalLoginForm" class="modal fade">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h3 class="control-label">Thêm học sinh</h3>
+					</div>
+					<div class="modal-body">
+						<form role="form" method="POST" th:action="@{/1}"
+							th:object="${hocSinh}">
+							<input type="hidden" name="_token" value="">
+							<div class="form-group">
+								<label class="control-label">Mã học sinh</label>
+								<div>
+									<input type="text" class="form-control input-lg"
+										th:field="*{maHS}">
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="control-label">Họ</label>
+								<div>
+									<input type="text" class="form-control input-lg"
+										th:field="*{ho}">
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="control-label">Tên</label>
+								<div>
+									<input type="text" class="form-control input-lg"
+										th:field="*{ten}">
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="control-label">Lớp</label>
+								<div>
+
+									<select class="form-control" name="maLH">
+										<option selected>Chọn ...</option>
+										<th:block th:each="lop : ${dsL}">
+											<option th:value="${lop.maLH}" th:text="${lop.tenLH}" />
+										</th:block>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="control-label">Giới tính</label> <br>
+								<div class="form-check form-check-inline">
+									<input class="form-check-input" type="radio"
+										th:field="*{gioiTinh}" id="inlineRadio1" value="nam">
+									<label class="form-check-label" for="inlineRadio1">Nam</label>
+								</div>
+								<div class="form-check form-check-inline">
+									<input class="form-check-input" type="radio"
+										th:field="*{gioiTinh}" id="inlineRadio2" value="nu"> <label
+										class="form-check-label" for="inlineRadio2">Nữ</label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="control-label">Ngày sinh</label>
+								<div>
+									<input class="form-control" type="date" id="birthday" th:field="*{ngaySinh}">
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="control-label">Địa chỉ</label>
+								<div>
+									<input type="text" class="form-control input-lg"
+										th:field="*{diaChi}">
+								</div>
+							</div>
+							<div class="form-group">
+								<div>
+									<button type="submit" class="btn btn-success">Thêm</button>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+				<!-- /.modal-content -->
+			</div>
+			<!-- /.modal-dialog -->
+		</div>
+
+		<div id="ModalEditForm" class="modal fade">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h3 class="control-label">Sửa thông tin</h3>
+					</div>
+					<div class="modal-body">
+						<form role="form" method="POST" th:action="@{/1}"
+							th:object="${hocSinh}">
+							<input type="hidden" name="_token" value="">
+
+							<div class="form-group">
+								<label class="control-label">Họ</label>
+								<div>
+									<input type="text" class="form-control input-lg"
+										th:field="*{ho}">
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="control-label">Tên</label>
+								<div>
+									<input type="text" class="form-control input-lg"
+										th:field="*{ten}">
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="control-label">Lớp</label>
+								<div>
+
+									<select class="form-control" name="maLH">
+										<option selected>Chọn ...</option>
+										<th:block th:each="lop : ${dsL}">
+											<option th:value="${lop.maLH}" th:text="${lop.tenLH}" />
+										</th:block>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="control-label">Giới tính</label> <br>
+								<div class="form-check form-check-inline">
+									<input class="form-check-input" type="radio"
+										th:field="*{gioiTinh}" id="inlineRadio1" value="nam">
+									<label class="form-check-label" for="inlineRadio1">Nam</label>
+								</div>
+								<div class="form-check form-check-inline">
+									<input class="form-check-input" type="radio"
+										th:field="*{gioiTinh}" id="inlineRadio2" value="nu"> <label
+										class="form-check-label" for="inlineRadio2">Nữ</label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="control-label">Ngày sinh</label>
+								<div>
+									<input class="form-control" type="date" id="birthday" th:field="*{ngaySinh}">
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="control-label">Địa chỉ</label>
+								<div>
+									<input type="text" class="form-control input-lg"
+										th:field="*{diaChi}">
+								</div>
+							</div>
+							<div class="form-group">
+								<div>
+									<button type="submit" class="btn btn-success">Sửa</button>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+				<!-- /.modal-content -->
+			</div>
+			<!-- /.modal-dialog -->
+		</div>
+		<!-- /.modal -->
+
+	</main>
+
+	<!-- Essential javascripts for application to work-->
+	<script th:src="@{/home/js/jquery-3.2.1.min.js}"></script>
+	<script th:src="@{/home/js/popper.min.js}"></script>
+	<script th:src="@{/home/js/bootstrap.min.js}"></script>
+	<script
+		src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+	<script th:src="@{/home/js/jquery.table2excel.js}"></script>
+	<script th:src="@{/home/js/main.js}"></script>
+	<!-- The javascript plugin to display page loading on top-->
+	<script th:src="@{/home/js/plugins/pace.min.js}"></script>
+	<!-- Page specific javascripts-->
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.js"></script>
+	<!-- Data table plugin-->
+	<script type="text/javascript"
+		th:src="@{/home/js/plugins/jquery.dataTables.min.js}"></script>
+	<script type="text/javascript"
+		th:src="@{/home/js/plugins/dataTables.bootstrap.min.js}"></script>
+
+	<script type="text/javascript">
+		$('#sampleTable').DataTable();
+		//Thời Gian
+		function time() {
+			var today = new Date();
+			var weekday = new Array(7);
+			weekday[0] = "Chủ Nhật";
+			weekday[1] = "Thứ Hai";
+			weekday[2] = "Thứ Ba";
+			weekday[3] = "Thứ Tư";
+			weekday[4] = "Thứ Năm";
+			weekday[5] = "Thứ Sáu";
+			weekday[6] = "Thứ Bảy";
+			var day = weekday[today.getDay()];
+			var dd = today.getDate();
+			var mm = today.getMonth() + 1;
+			var yyyy = today.getFullYear();
+			var h = today.getHours();
+			var m = today.getMinutes();
+			var s = today.getSeconds();
+			m = checkTime(m);
+			s = checkTime(s);
+			nowTime = h + " giờ " + m + " phút " + s + " giây";
+			if (dd < 10) {
+				dd = '0' + dd
+			}
+			if (mm < 10) {
+				mm = '0' + mm
+			}
+			today = day + ', ' + dd + '/' + mm + '/' + yyyy;
+			tmp = '<span class="date"> ' + today + ' - ' + nowTime + '</span>';
+			document.getElementById("clock").innerHTML = tmp;
+			clocktime = setTimeout("time()", "1000", "Javascript");
+
+			function checkTime(i) {
+				if (i < 10) {
+					i = "0" + i;
+				}
+				return i;
+			}
+		}
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<title>Thông tin cá nhân | Giáo viên chủ nhiệm</title>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	<!-- Main CSS-->
+	<link rel="stylesheet" type="text/css" th:href="@{/home/css/main.css}">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
+	<!-- or -->
+	<link rel="stylesheet" href="https://unpkg.com/boxicons@latest/css/boxicons.min.css">
+	
+	<!-- Font-icon css-->
+	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.css">
+</head>
+
+<body onload="time()" class="app sidebar-mini rtl">
+	<!-- Navbar-->
+  	<header class="app-header">
+    	<!-- Navbar Right Menu-->
+    	<ul class="app-nav">
+			<!-- User Menu-->
+    		<li>
+    			<a class="app-nav__item" th:href="@{/logout}">
+    				<i class='bx bx-log-out bx-rotate-180'></i> 
+    			</a>
+    		</li>
+    	</ul>
+  	</header>
+  	<!-- Sidebar menu-->
+  	<div class="app-sidebar__overlay" data-toggle="sidebar"></div>
+  	<aside class="app-sidebar">
+    	<div class="app-sidebar__user">
+    		<img class="app-sidebar__user-avatar" th:src="@{/images/hay.jpg}" width="50px" alt="User Image">
+      		<div>
+        		<p class="app-sidebar__user-name" th:object="${#session.getAttribute('userLogin')}">
+        			<b th:text="*{ho}"></b>
+        			<b th:text="*{ten}"></b>
+        		</p>
+        		<p class="app-sidebar__user-designation">Chào mừng bạn trở lại</p>
+      		</div>
+    	</div>
+    	<hr>
+	    <ul class="app-menu">
+	      	<li>
+		      	<a class="app-menu__item" th:href="@{/gvcn/home}">
+		      		<i class='app-menu__icon bx bxs-home'></i>
+		      		<span class="app-menu__label">Trang chủ</span>
+		      	</a>
+	     	</li>
+	      	<li>
+		      	<a class="app-menu__item " th:href="@{/gvcn/danhsachlop}">
+		      		<i class='app-menu__icon bx bx-list-ul'></i> 
+		      		<span class="app-menu__label">Lớp từng phụ trách</span>
+		    	</a>
+		  	</li>
+	      	<li>
+		      	<a class="app-menu__item" th:href="@{/gvcn/danhsachhocsinh}">
+		      		<i class='app-menu__icon bx bx-list-check'></i>
+		      		<span class="app-menu__label">Lớp đang phụ trách</span>
+		      	</a>
+	      	</li>
+	      	<li>
+		      	<a class="app-menu__item active" th:href="@{/gvcn/thongtincanhan}">
+		      		<i class='app-menu__icon bx bx-detail'></i>
+		      		<span class="app-menu__label">Thông tin cá nhân</span>
+		      	</a>
+	      	</li>
+	      	<li>
+		      	<a class="app-menu__item" th:href="@{/logout}">
+		      		<i class='app-menu__icon bx bx-log-out'></i>
+		      		<span class="app-menu__label">Đăng xuất</span>
+		      	</a>
+	    	</li>
+	    </ul>
+  	</aside>
+  	<!-- Main contain -->
+    <main class="app-content">
+        <div class="app-title">
+            <ul class="app-breadcrumb breadcrumb side">
+                <li class="breadcrumb-item active"><a href="#"><b>Thông tin cá nhân</b></a></li>
+            </ul>
+            <div id="clock"></div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="tile">
+                    <div class="tile-body">
+                        <div class="row element-button">
+                            <div class="col-sm-2">
+                              	<a class="btn btn-delete btn-sm print-file" type="button" title="In" onclick="myApp.printTable()">
+                              		<i class="fas fa-print"></i> 
+                              		In dữ liệu
+                              	</a>
+                            </div>
+                            <div class="col-sm-2">
+                              	<a class="btn btn-delete btn-sm print-file js-textareacopybtn" type="button" title="Sao chép">
+                              		<i class="fas fa-copy"></i> 
+                              		Sao chép
+                              	</a>
+                            </div>
+                            <div class="col-sm-2">
+                              	<a class="btn btn-excel btn-sm" href="" title="In">
+                              		<i class="fas fa-file-excel"></i> 
+                              		Xuất Excel
+                              	</a>
+                            </div>
+                            <div class="col-sm-2">
+                              	<a class="btn btn-delete btn-sm pdf-file" type="button" title="In" onclick="myFunction(this)">
+                              		<i class="fas fa-file-pdf"></i> 
+                              		Xuất PDF
+                              	</a>
+                            </div>
+                        </div>
+                        <table class="table table-hover table-bordered" id="sampleTable">
+                            <thead>
+                                <tr>
+                                    <th width="10"><input type="checkbox" id="all"></th>
+                                    <th>Mã giáo viên</th>
+                                    <th>Họ</th>
+                                    <th>Tên</th>
+                                    <th>Giới tính</th>
+                                    <th>Ngày sinh</th>
+                                    <th>Địa chỉ</th>
+                                    <th>Số điện thoại</th>
+                                    <th>Email</th>
+                                    <th>Sửa</th>
+                                </tr>
+                            </thead>
+                            <tbody th:object="${#session.getAttribute('userLogin')}">
+                                <tr>
+                                    <td width="10"><input type="checkbox" name="check1" value="1"></td>
+                                    <td th:text=*{maGV}></td>
+                                    <td th:text=*{ho}></td>
+                                    <td th:text=*{ten}></td>
+                                    <td th:text=*{gioiTinh}></td>
+                                    <td>[[*{#dates.format(ngaySinh,'dd-MM-yyyy')}]]</td>
+                                    <td th:text=*{diaChi}></td>
+                                    <td th:text=*{sdt}></td>
+                                    <td th:text=*{email}></td>
+                                    <td>
+                                    	<button class="btn btn-primary btn-sm edit" type="button" title="Sửa" id="show-emp" data-toggle="modal" data-target="#modal">
+					                      	<i class="fas fa-edit"></i>
+					                    </button>
+					                    <!-- MODAL -->
+									  	<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+									    	<div class="modal-dialog modal-dialog-centered" role="document">
+									      		<div class="modal-content">
+									      			<form th:action="@{/gvcn/suathongtincanhan}" method="POST">
+									      				<div class="modal-body">
+										          			<div class="row">
+										            			<div class="form-group  col-md-12">
+										              				<span class="thong-tin-thanh-toan">
+										                				<h5 style="text-align: center; color: #be2a2a;">Chỉnh sửa thông tin cá nhân</h5>
+										              				</span>
+										            			</div>
+										          			</div>
+										          			<div class="row">
+										          				<div class="form-group col-md-12">
+										              				<input class="form-control" type="hidden" th:name="email" th:value="*{email}">
+										           				</div>
+										            			<div class="form-group col-md-6">
+										              				<label class="control-label">Họ</label>
+										              				<input class="form-control" type="text" required th:name="ho" th:value="*{ho}">
+										            			</div>
+										            			<div class="form-group col-md-6">
+										              				<label class="control-label">Tên</label>
+										              				<input class="form-control" type="text" required th:name="ten" th:value="*{ten}">
+										            			</div>
+										            			<div class="form-group  col-md-6">
+										              				<label class="control-label">Giới tính</label>
+										              				<input class="form-control" type="text" required th:name="gioiTinh" th:value="*{gioiTinh}">
+										            			</div>
+										            			<div class="form-group col-md-6">
+										              				<label class="control-label">Ngày sinh</label>
+										              				<input class="form-control" type="date" required th:name="ngaySinh" th:value="*{ngaySinh}">
+										           				</div>
+										           				<div class="form-group col-md-6">
+										              				<label class="control-label">Số điện thoại</label>
+										              				<input class="form-control" type="text" required th:name="sdt" th:value="*{sdt}">
+										           				</div>
+										           				<div class="form-group col-md-6">
+										              				<label class="control-label">Địa chỉ</label>
+										              				<input class="form-control" type="text" required th:name="diaChi" th:value="*{diaChi}">
+										           				</div>
+										          			</div>
+										          			<br>
+										          			<br>
+										          			<input class="btn btn-save" type="submit" value="Lưu lại">
+										         	 		<a class="btn btn-cancel" data-dismiss="modal" href="#">Hủy bỏ</a>
+										          			<br>
+										        		</div>
+									      			</form>
+									        		<div class="modal-footer"></div>
+									      		</div>
+									    	</div>
+									  	</div>
+									  	<!-- MODAL -->
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Essential javascripts for application to work-->
+    <script th:src="@{/home/js/jquery-3.2.1.min.js}"></script>
+    <script th:src="@{/home/js/popper.min.js}"></script>
+    <script th:src="@{/home/js/bootstrap.min.js}"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script th:src="@{/home/js/jquery.table2excel.js}"></script>
+    <script th:src="@{/home/js/main.js}"></script>
+    <!-- The javascript plugin to display page loading on top-->
+    <script th:src="@{/home/js/plugins/pace.min.js}"></script>
+    <!-- Page specific javascripts-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.js"></script>
+    <!-- Data table plugin-->
+    <script type="text/javascript" th:src="@{/home/js/plugins/jquery.dataTables.min.js}"></script>
+    <script type="text/javascript" th:src="@{/home/js/plugins/dataTables.bootstrap.min.js}"></script>
+    
+    <script type="text/javascript">
+        $('#sampleTable').DataTable();
+        //Thời Gian
+	    function time() {
+	      var today = new Date();
+	      var weekday = new Array(7);
+	      weekday[0] = "Chủ Nhật";
+	      weekday[1] = "Thứ Hai";
+	      weekday[2] = "Thứ Ba";
+	      weekday[3] = "Thứ Tư";
+	      weekday[4] = "Thứ Năm";
+	      weekday[5] = "Thứ Sáu";
+	      weekday[6] = "Thứ Bảy";
+	      var day = weekday[today.getDay()];
+	      var dd = today.getDate();
+	      var mm = today.getMonth() + 1;
+	      var yyyy = today.getFullYear();
+	      var h = today.getHours();
+	      var m = today.getMinutes();
+	      var s = today.getSeconds();
+	      m = checkTime(m);
+	      s = checkTime(s);
+	      nowTime = h + " giờ " + m + " phút " + s + " giây";
+	      if (dd < 10) {
+	        dd = '0' + dd
+	      }
+	      if (mm < 10) {
+	        mm = '0' + mm
+	      }
+	      today = day + ', ' + dd + '/' + mm + '/' + yyyy;
+	      tmp = '<span class="date"> ' + today + ' - ' + nowTime +
+	        '</span>';
+	      document.getElementById("clock").innerHTML = tmp;
+	      clocktime = setTimeout("time()", "1000", "Javascript");
+	
+	      function checkTime(i) {
+	        if (i < 10) {
+	          i = "0" + i;
+	        }
+	        return i;
+	      }
+	    }
+    </script>
+</body>
+
+</html>
